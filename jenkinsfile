@@ -1,0 +1,45 @@
+pipeline {
+    agent any
+ stages {
+     stage('Pull Code') {
+         steps {
+          // Pull code from GitHub repository
+            git 'https://github.com/onlyforcloudaws/task.git'
+        }
+      }
+
+     stage('Grant Permissions') {
+        steps {
+         // Grant executable permissions to a file
+           sh 'chmod +x build.sh'
+           sh 'chmod +x deploy.sh'
+        }
+      }
+
+     stage('Build') {
+         steps {
+        // Run build script
+          sh './build.sh'
+         }
+     }
+
+     stage('Docker Push to dev') {
+        steps {
+        // Docker push based on branch name
+         withCredentials([usernamePassword(credentialsId: 'Docker', passwordVariable: 'DOCKERHUB_PASSWORD', usernameVariable: 'DOCKERHUB_USERNAME')]) {
+           sh "docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD"
+           sh "docker tag onlyforcloudaws/webapp:v1 onlyforcloudaws/task:lts"
+           sh "docker push onlyforcloudaws/task:lts"
+          }
+       }
+    } 
+     stage('Deploy') {
+        steps {
+        // Run deploy script
+          sh './deploy.sh'
+        }
+     }
+    }                                
+
+       
+}
