@@ -3,7 +3,7 @@ pipeline {
     stages {
         stage('Pull Code') {
             steps {
-                git 'https://github.com/onlyforcloudaws/task.git'
+                git clone'https://github.com/onlyforcloudaws/task.git'
             }
         }
 
